@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;600;700;900&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Poppins', sans-serif;
+}
+
+.main{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5rem;
+}
+
+.cardboard-box{
+    background-color: #fff;
+    width: 350px;
+    height: 500px;
+    border-radius: 15px;
+    display: flex;
+    flex-flow: column wrap;
+    box-shadow: 2px 2px 8px #000;
+}
+
+.cardboard-box .cardboard-box__header{
+    height: 30%;
+    background-color: #FBDB09;
+    padding: 1rem;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    position: relative;
+}
+
+.cardboard-box .cardboard-box__header img{
+    position: absolute;
+    top: -110px;
+    left: 92px;
+    width: 350px;
+}
+
+.cardboard-box .cardboard-box__body{
+    height: 70%;
+    padding: 1rem;
+}
+
+.cardboard-box .cardboard-box__body .cardboard-box__body__title{
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.cardboard-box .cardboard-box__body .cardboard-box__body__description{
+    font-size: 14px;
+    text-align: justify;
+    font-weight: 300;
+    margin: 10px 0;
+}
+
+hr{
+    width: 90%;
+    opacity: .5;
+    margin: 0 auto;
+    background-color: #092558;
+}
+
+.cardboard-box .cardboard-box__body .cardboard-box__body__options{
+    margin-top: 5px;
+}
+
+h3{
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.cardboard-box__body__options .field{
+    margin-top: 10px;
+}
+
+.field__options{
+    display: flex;
+    flex-flow: row wrap;
+    gap: 10px;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.field__options input{
+    max-width: 90px;
+    border: solid 1px #092558;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    text-align: center;
+}
+
+input::placeholder{
+    padding: 5px;
+}
+
+input:focus{
+    outline: none;
+}
+
+.three-js{
+    background-color: blue;
+    width: 500px;
+    height: 500px;
+}
+
+small#input-file-error{
+    display: none;
+    color: red;
+    font-size: 12px;
+}
+
+a#reset{
+    text-decoration: none;
+    color: #092558;
+    background-color: #FBDB09;
+    padding: 5px;
+    font-size: 12px;
+    float: right;
+    border-radius: 5px;
+}
+
+a#reset:hover{
+    color: #FBDB09;
+    background-color: #092558;
+
+    transition: all .3s ease-in;
+}

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Cardboard BOX</title>
+</head>
+<body>
+
+    <div class="main">
+        <div class="cardboard-box">
+            <div class="cardboard-box__header">
+                <img src="assets/img/box.png" alt="Box default">
+            </div>
+            <div class="cardboard-box__body">
+                <h2 class="cardboard-box__body__title">Caja de cartón</h2>
+                <p class="cardboard-box__body__description">
+                    Desde ahora, puedes seleccionar las dimensiones, color y adjuntar tu logo para previsualizar la caja.
+                </p> 
+                <hr>
+                <div class="cardboard-box__body__options">
+                    <div class="field">
+                        <h3>Dimensiones</h3>
+                        <div class="field__options">
+                            <input type="number" name="width" id="" min="1" placeholder="Largo">
+                            <input type="number" name="height" id="" min="1" placeholder="Alto">
+                            <input type="number" name="depth" id="" min="1" placeholder="Ancho">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <h3>Color</h3>
+                        <input type="color" name="" id="">
+                    </div>
+                    <div class="field">
+                        <h3>Logo</h3>
+                        <input type="file" name="" accept="image/*">
+                        <small id="error-input-file"></small>
+                    </div>
+                    <div class="field">
+                        <a href="javascript:void(0)" id="reset">Limpiar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="three-js" id="three-js"></div>
+    </div>
+    
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/three.js"></script>
+
+    <script>
+        const threeContainer    = document.getElementById('three-js');
+        const scene             = new THREE.Scene();
+        const camera            = new THREE.PerspectiveCamera( 50, threeContainer.offsetWidth / threeContainer.offsetHeight, 0.1, 1000 );
+        const renderer          = new THREE.WebGLRenderer();
+        const fileError         = document.getElementById('error-input-file');
+        var colorSelected, file, currentTexture;  
+
+        // Change background scene
+        scene.background    = new THREE.Color("#ffffff");
+
+        // Size to scene
+        renderer.setSize( threeContainer.offsetWidth, threeContainer.offsetHeight );
+
+        // Rendered object
+        threeContainer.appendChild(renderer.domElement)
+
+        const geometry  = new THREE.BoxGeometry( 1, 1, 1 );
+        const material  = new THREE.MeshBasicMaterial( { color: '#DFCEA9'} );
+        const cube      = new THREE.Mesh( geometry, material );
+
+        scene.add( cube );
+
+        camera.position.z   = 5;
+        // cube.rotation.x     = Math.PI/-16;
+        // cube.rotation.y     = Math.PI/4;
+
+        var isDragging = false;
+        var previousMousePosition = { x: 0, y: 0 };
+
+        $(renderer.domElement).on('mousedown', function(e) {
+            isDragging = true;
+        })
+        .on('mousemove', function(e) {
+            var deltaMove = {
+                x: e.offsetX-previousMousePosition.x,
+                y: e.offsetY-previousMousePosition.y
+            };
+
+            if(isDragging) {
+                var deltaRotationQuaternion = new THREE.Quaternion()
+                    .setFromEuler(new THREE.Euler(
+                        toRadians(deltaMove.y * 1),
+                        toRadians(deltaMove.x * 1),
+                        0,
+                        'XYZ'
+                    ));
+                
+                cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
+            }
+            
+            previousMousePosition = {
+                x: e.offsetX,
+                y: e.offsetY
+            };
+
+            $(this).css('cursor','grab');
+        });
+
+        $(document).on('mouseup', function(e) { isDragging = false; });
+
+        window.requestAnimFrame = (function(){
+            return  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
+                function(callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+        })();
+
+        function render() {
+            renderer.render(scene, camera);
+            
+            requestAnimFrame(render);
+        } render();
+
+        function toRadians(angle) { return angle * (Math.PI / 180); }
+
+        // Event for change color
+        document.querySelector('input[type="color"]').addEventListener('change', function(e){
+            e.preventDefault(); 
+
+            colorSelected = this.value;
+
+            if(typeof currentTexture !== 'undefined'){
+                let materials = [
+                    new THREE.MeshBasicMaterial({
+                        color: colorSelected
+                    }),
+                    new THREE.MeshBasicMaterial({
+                        color: colorSelected
+                    }),
+                    new THREE.MeshBasicMaterial({
+                        color: colorSelected
+                    }),
+                    new THREE.MeshBasicMaterial({
+                        color: colorSelected
+                    }),
+                    new THREE.MeshBasicMaterial({
+                        map: currentTexture
+                    }),
+                    new THREE.MeshBasicMaterial({
+                        color: colorSelected
+                    })   
+                ]
+
+                cube.material = materials;
+            }else{
+                cube.material.color.set(this.value);
+            }
+        });
+
+        // Event for upload image
+        document.querySelector('input[type="file"]').addEventListener('change', function(e){
+            e.preventDefault();
+
+            file                = this.files[0]; 
+            const reader        = new FileReader();
+            const imagesType    = ["image/jpeg", "image/gif", "image/png"];
+
+            reader.addEventListener('load', (e) => {
+
+                let image           = e.target.result;
+                let textureLoader   = new THREE.TextureLoader().load(image);
+                    currentTexture  = textureLoader;
+
+                if(!imagesType.includes(file.type)){
+                    cube.material.color.set('#DFCEA9');
+                } else{
+                    let cubeMaterials   = [
+                        new THREE.MeshBasicMaterial({
+                            color: (colorSelected) ? colorSelected : '#DFCEA9'
+                        }),
+                        new THREE.MeshBasicMaterial({
+                            color: (colorSelected) ? colorSelected : '#DFCEA9'
+                        }),
+                        new THREE.MeshBasicMaterial({
+                            color: (colorSelected) ? colorSelected : '#DFCEA9'
+                        }),
+                        new THREE.MeshBasicMaterial({
+                            color: (colorSelected) ? colorSelected : '#DFCEA9'
+                        }),
+                        new THREE.MeshBasicMaterial({
+                            map: (textureLoader) ? textureLoader : '#DFCEA9'
+                        }),
+                        new THREE.MeshBasicMaterial({
+                            color: (colorSelected) ? colorSelected : '#DFCEA9'
+                        })       
+                    ];
+
+                    cube.material =  cubeMaterials;
+                }
+            });
+
+            if (file) { reader.readAsDataURL(file) }
+
+            if(!imagesType.includes(file.type)){
+                fileError.style.display     = 'block';
+                fileError.innerHTML         = "¡Error! Solo se permiten formatos: [ .jpg .png ]";
+                fileError.style.color       = 'red';
+
+                return false;
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', function(e){
+            e.preventDefault();
+
+            location.reload();
+        });
+       
+
+        document.querySelectorAll('.field__options input').forEach(el => {
+                el.addEventListener('change', function(e){
+                    e.preventDefault();
+
+                    const maxScale = 300;
+
+                    if(e.target.name == 'width'){  x = e.target.value }
+                    if(e.target.name == 'height'){ y = e.target.value }
+                    if(e.target.name == 'depth'){  z = e.target.value }
+
+                    cube.scale.x = x / maxScale;
+                    cube.scale.y = y / maxScale;
+                    cube.scale.z = z / maxScale;
+                });
+        });
+    </script>
+
+</body>
+</html>
