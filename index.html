@@ -67,15 +67,25 @@
         // Rendered object
         threeContainer.appendChild(renderer.domElement)
 
+        var btnCanvas = document.createElement("button");
+            btnCanvas.innerHTML = "Descargar";
+
+            threeContainer.appendChild(btnCanvas);
+
         const geometry  = new THREE.BoxGeometry( 1, 1, 1 );
         const material  = new THREE.MeshBasicMaterial( { color: '#DFCEA9'} );
         const cube      = new THREE.Mesh( geometry, material );
 
+        // Wireframe
+        let wireframeGeometry   = new THREE.EdgesGeometry(cube.geometry);
+        let wireframeMaterial   = new THREE.LineBasicMaterial({ color: "#A58138", linewidth: 5 });
+        let wireframe           = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
+        wireframe.renderOrder   = 1; 
+        
+        cube.add(wireframe);
         scene.add( cube );
 
         camera.position.z   = 5;
-        // cube.rotation.x     = Math.PI/-16;
-        // cube.rotation.y     = Math.PI/4;
 
         var isDragging = false;
         var previousMousePosition = { x: 0, y: 0 };
@@ -84,6 +94,31 @@
             isDragging = true;
         })
         .on('mousemove', function(e) {
+            var deltaMove = {
+                x: e.offsetX-previousMousePosition.x,
+                y: e.offsetY-previousMousePosition.y
+            };
+
+            if(isDragging) {
+                var deltaRotationQuaternion = new THREE.Quaternion()
+                    .setFromEuler(new THREE.Euler(
+                        toRadians(deltaMove.y * 1),
+                        toRadians(deltaMove.x * 1),
+                        0,
+                        'XYZ'
+                    ));
+                
+                cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
+            }
+            
+            previousMousePosition = {
+                x: e.offsetX,
+                y: e.offsetY
+            };
+
+            $(this).css('cursor','grab');
+        })
+        .on('touchmove', function(e) {
             var deltaMove = {
                 x: e.offsetX-previousMousePosition.x,
                 y: e.offsetY-previousMousePosition.y
@@ -147,7 +182,9 @@
                         color: colorSelected
                     }),
                     new THREE.MeshBasicMaterial({
-                        map: currentTexture
+                        map: currentTexture,
+                        transparent: true, 
+                        color: '#DFCEA9'
                     }),
                     new THREE.MeshBasicMaterial({
                         color: colorSelected
@@ -166,12 +203,13 @@
 
             file                = this.files[0]; 
             const reader        = new FileReader();
-            const imagesType    = ["image/jpeg", "image/gif", "image/png"];
+            const imagesType    = ["image/jpeg", "image/png"];
 
             reader.addEventListener('load', (e) => {
 
                 let image           = e.target.result;
                 let textureLoader   = new THREE.TextureLoader().load(image);
+
                     currentTexture  = textureLoader;
 
                 if(!imagesType.includes(file.type)){
@@ -191,7 +229,10 @@
                             color: (colorSelected) ? colorSelected : '#DFCEA9'
                         }),
                         new THREE.MeshBasicMaterial({
-                            map: (textureLoader) ? textureLoader : '#DFCEA9'
+                            map: currentTexture,
+                            transparent: true, 
+                            color: '#DFCEA9'
+                            // map: (textureLoader) ? textureLoader : '#DFCEA9'
                         }),
                         new THREE.MeshBasicMaterial({
                             color: (colorSelected) ? colorSelected : '#DFCEA9'
@@ -213,13 +254,7 @@
             }
         });
 
-        document.getElementById('reset').addEventListener('click', function(e){
-            e.preventDefault();
-
-            location.reload();
-        });
-       
-
+        // Event for change size
         document.querySelectorAll('.field__options input').forEach(el => {
                 el.addEventListener('change', function(e){
                     e.preventDefault();
@@ -235,6 +270,30 @@
                     cube.scale.z = z / maxScale;
                 });
         });
+
+        // Event to reset page
+        document.getElementById('reset').addEventListener('click', function(e){
+            e.preventDefault();
+
+            location.reload();
+        });
+
+        // Event to download
+        document.getElementsByTagName('button')[0].addEventListener('click', function(e){
+            e.preventDefault();
+
+            render();
+
+            let screenshot  = renderer.domElement.toDataURL();
+            let link        = document.createElement('a');
+
+                link.href       = screenshot;
+                link.download   = "preview-my-box.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+        });
+
     </script>
 
 </body>

@@ -111,9 +111,14 @@ input:focus{
 }
 
 .three-js{
-    background-color: blue;
+    background-color: transparent;
     width: 500px;
     height: 500px;
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 small#input-file-error{
@@ -122,7 +127,7 @@ small#input-file-error{
     font-size: 12px;
 }
 
-a#reset{
+a, button{
     text-decoration: none;
     color: #092558;
     background-color: #FBDB09;
@@ -130,11 +135,13 @@ a#reset{
     font-size: 12px;
     float: right;
     border-radius: 5px;
+    border: none;
 }
 
-a#reset:hover{
+a:hover, button:hover{
     color: #FBDB09;
     background-color: #092558;
+    cursor: pointer;
 
     transition: all .3s ease-in;
 }
