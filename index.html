@@ -12,12 +12,12 @@
     <div class="main">
         <div class="cardboard-box">
             <div class="cardboard-box__header">
-                <img src="assets/img/box.png" alt="Box default">
+                <img src="assets/img/box.png" alt="Caja de cartón">
             </div>
             <div class="cardboard-box__body">
-                <h2 class="cardboard-box__body__title">Caja de cartón</h2>
+                <h2 class="cardboard-box__body__title">Empaques de cartón</h2>
                 <p class="cardboard-box__body__description">
-                    Desde ahora, puedes seleccionar las dimensiones, color y adjuntar tu logo para previsualizar la caja.
+                    Desde ahora, puedes seleccionar las dimensiones, color y adjuntar tu logo para previsualizar tu empaque.
                 </p> 
                 <hr>
                 <div class="cardboard-box__body__options">
@@ -28,6 +28,7 @@
                             <input type="number" name="height" id="" min="1" placeholder="Alto">
                             <input type="number" name="depth" id="" min="1" placeholder="Ancho">
                         </div>
+                        <small>* Corresponden en centimetros (cm)</small>
                     </div>
                     <div class="field">
                         <h3>Color</h3>
@@ -35,12 +36,14 @@
                     </div>
                     <div class="field">
                         <h3>Logo</h3>
-                        <input type="file" name="" accept="image/*">
-                        <small id="error-input-file"></small>
+                        <div class="field__options--file">
+                            <input type="file" name="" accept="image/*">
+                            <small>* Formato PNG o JPEG</small>
+                        </div>
+                        <small id="error-file"></small>
                     </div>
-                    <div class="field">
-                        <a href="javascript:void(0)" id="reset">Limpiar</a>
-                    </div>
+
+                    <a href="javascript:void(0)" id="reset">Limpiar</a>
                 </div>
             </div>
         </div>
@@ -55,7 +58,7 @@
         const scene             = new THREE.Scene();
         const camera            = new THREE.PerspectiveCamera( 50, threeContainer.offsetWidth / threeContainer.offsetHeight, 0.1, 1000 );
         const renderer          = new THREE.WebGLRenderer();
-        const fileError         = document.getElementById('error-input-file');
+        const fileError         = document.getElementById('error-file');
         var colorSelected, file, currentTexture;  
 
         // Change background scene

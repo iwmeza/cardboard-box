@@ -8,22 +8,25 @@
 
 body{
     font-family: 'Poppins', sans-serif;
+
+    overflow-x: hidden;
 }
 
 .main{
     width: 100%;
     height: 100vh;
+
     display: flex;
     flex-flow: row wrap;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
-    gap: 5rem;
 }
 
 .cardboard-box{
-    background-color: #fff;
     width: 350px;
-    height: 500px;
+    height: 530px;
+
+    background-color: #fff;
     border-radius: 15px;
     display: flex;
     flex-flow: column wrap;
@@ -31,7 +34,7 @@ body{
 }
 
 .cardboard-box .cardboard-box__header{
-    height: 30%;
+    height: 25%;
     background-color: #FBDB09;
     padding: 1rem;
     border-top-left-radius: 15px;
@@ -47,13 +50,14 @@ body{
 }
 
 .cardboard-box .cardboard-box__body{
-    height: 70%;
+    height: 75%;
     padding: 1rem;
 }
 
 .cardboard-box .cardboard-box__body .cardboard-box__body__title{
     font-size: 24px;
     font-weight: 600;
+    text-align: center;
 }
 
 .cardboard-box .cardboard-box__body .cardboard-box__body__description{
@@ -72,29 +76,29 @@ hr{
 
 .cardboard-box .cardboard-box__body .cardboard-box__body__options{
     margin-top: 5px;
+    position: relative;
 }
 
-h3{
+.cardboard-box .cardboard-box__body .field{ margin-top: 10px; }
+
+.cardboard-box .cardboard-box__body .field small{ margin-top: 10px; color: red; font-size: 12px;}
+
+.cardboard-box .cardboard-box__body .cardboard-box__body__options .field h3{
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 5px;
 }
 
-.cardboard-box__body__options .field{
-    margin-top: 10px;
-}
-
-.field__options{
+.cardboard-box .cardboard-box__body .cardboard-box__body__options .field__options{
     display: flex;
     flex-flow: row wrap;
-    gap: 10px;
 
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
 }
 
 .field__options input{
-    max-width: 90px;
+    max-width: 80px;
     border: solid 1px #092558;
     border-top: none;
     border-left: none;
@@ -102,12 +106,43 @@ h3{
     text-align: center;
 }
 
-input::placeholder{
-    padding: 5px;
+.field__options--file{
+    display: flex;
+    flex-flow: row wrap;
 }
 
-input:focus{
-    outline: none;
+.field__options input::placeholder{ padding: 5px; }
+.field__options input:focus{ outline: none; }
+
+a#reset{
+    text-decoration: none;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+a#reset, button{
+    color: #092558;
+    background-color: #FBDB09;
+    padding: 5px;
+    font-size: 12px;
+    float: right;
+    border-radius: 5px;
+    border: none;
+}
+
+a#reset:hover, button:hover{
+    color: #FBDB09;
+    background-color: #092558;
+    cursor: pointer;
+
+    transition: all .3s ease-in;
+}
+
+.field small#error-file{
+    display: none;
+    color: red;
+    font-size: 12px;
 }
 
 .three-js{
@@ -121,27 +156,52 @@ input:focus{
     align-items: center;
 }
 
-small#input-file-error{
-    display: none;
-    color: red;
-    font-size: 12px;
+@media (min-width: 320px) and (max-width: 480px) {
+    .main{
+        height: 100%;
+        width: 100%;
+        margin-top: 10rem;
+        gap: 2rem;
+    }
+
+    .field h3{
+        text-align: center;
+    }
+
+    .field__options input{
+        max-width: 100%;
+    }
+
+    input{
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    input, img{
+        vertical-align: baseline;
+    }
+
+    small{
+        text-align: center;
+    }
 }
 
-a, button{
-    text-decoration: none;
-    color: #092558;
-    background-color: #FBDB09;
-    padding: 5px;
-    font-size: 12px;
-    float: right;
-    border-radius: 5px;
-    border: none;
+@media (min-width: 481px) and (max-width: 767px){
+    .main{
+        height: 100%;
+        margin-top: 10rem;
+        gap: 2rem;
+    }
 }
 
-a:hover, button:hover{
-    color: #FBDB09;
-    background-color: #092558;
-    cursor: pointer;
+@media (min-width: 768px) and (max-width: 990px) {
+    .main{
+        height: 100%;
+        margin-top: 10rem;
+        gap: 2rem;
+    }
+}
 
-    transition: all .3s ease-in;
+@media (min-width: 991px) and (max-width: 1200px) {
+    //
 }
