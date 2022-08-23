@@ -118,6 +118,13 @@
 
             $(this).css('cursor','grab');
         })
+
+        $(document).on('mouseup', function(e) { isDragging = false; });
+
+
+        $(renderer.domElement).on('touchstart', function(e) {
+            isDragging = true;
+        })
         .on('touchmove', function(e) {
             var deltaMove = {
                 x: e.offsetX-previousMousePosition.x,
@@ -142,9 +149,9 @@
             };
 
             $(this).css('cursor','grab');
-        });
+        })
 
-        $(document).on('mouseup', function(e) { isDragging = false; });
+        $(document).on('touchend', function(e) { isDragging = false; });
 
         window.requestAnimFrame = (function(){
             return  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
