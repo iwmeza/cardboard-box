@@ -28,7 +28,7 @@
                             <input type="number" name="height" id="" min="1" placeholder="Alto">
                             <input type="number" name="depth" id="" min="1" placeholder="Ancho">
                         </div>
-                        <small>* Corresponden en centimetros (cm)</small>
+                        <small>* Corresponden en milímetros (mm)</small>
                     </div>
                     <div class="field">
                         <h3>Color</h3>
@@ -54,170 +54,6 @@
     <script src="assets/js/three.js"></script>
 
     <script>
-        const threeContainer    = document.getElementById('three-js');
-        const scene             = new THREE.Scene();
-        const camera            = new THREE.PerspectiveCamera( 50, threeContainer.offsetWidth / threeContainer.offsetHeight, 0.1, 1000 );
-        const renderer          = new THREE.WebGLRenderer();
-        const fileError         = document.getElementById('error-file');
-        var colorSelected, file, currentTexture;  
-
-        // Change background scene
-        scene.background    = new THREE.Color("#ffffff");
-
-        // Size to scene
-        renderer.setSize( threeContainer.offsetWidth, threeContainer.offsetHeight );
-
-        // Rendered object
-        threeContainer.appendChild(renderer.domElement)
-
-        var btnCanvas = document.createElement("button");
-            btnCanvas.innerHTML = "Descargar";
-
-            threeContainer.appendChild(btnCanvas);
-
-        const geometry  = new THREE.BoxGeometry( 1, 1, 1 );
-        const material  = new THREE.MeshBasicMaterial( { color: '#DFCEA9'} );
-        const cube      = new THREE.Mesh( geometry, material );
-
-        // Wireframe
-        let wireframeGeometry   = new THREE.EdgesGeometry(cube.geometry);
-        let wireframeMaterial   = new THREE.LineBasicMaterial({ color: "#A58138", linewidth: 5 });
-        let wireframe           = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
-        wireframe.renderOrder   = 1; 
-        
-        cube.add(wireframe);
-        scene.add( cube );
-
-        camera.position.z   = 5;
-
-        var isDragging = false;
-        var previousMousePosition = { x: 0, y: 0 };
-        var previousTouchPosition = { x: 0, y: 0 };
-
-        $(renderer.domElement).on('mousedown', function(e) {
-            isDragging = true;
-        })
-        .on('mousemove', function(e) {
-            var deltaMove = {
-                x: e.offsetX-previousMousePosition.x,
-                y: e.offsetY-previousMousePosition.y
-            };
-
-            if(isDragging) {
-                var deltaRotationQuaternion = new THREE.Quaternion()
-                    .setFromEuler(new THREE.Euler(
-                        toRadians(deltaMove.y * 1),
-                        toRadians(deltaMove.x * 1),
-                        0,
-                        'XYZ'
-                    ));
-                
-                cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
-            }
-            
-            previousMousePosition = {
-                x: e.offsetX,
-                y: e.offsetY
-            };
-
-            $(this).css('cursor','grab');
-        })
-
-        $(document).on('mouseup', function(e) { isDragging = false; });
-
-
-        renderer.domElement.addEventListener('touchstart', function(e){
-            isDragging = true;
-
-        }, {passive: true});
-
-
-        renderer.domElement.addEventListener('touchmove', function(e){
-
-            var touch = e.touches[0] || e.changedTouches[0];
-
-            var deltaMove = {
-                x: touch.pageX - previousTouchPosition.x,
-                y: touch.pageY - previousTouchPosition.y
-            };
-
-            if(isDragging) {
-                var deltaRotationQuaternion = new THREE.Quaternion()
-                    .setFromEuler(new THREE.Euler(
-                        toRadians(deltaMove.y * 1),
-                        toRadians(deltaMove.x * 1),
-                        0,
-                        'XYZ'
-                    ));
-                
-                cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
-            }
-
-
-            previousTouchPosition = {
-                x: touch.pageX,
-                y: touch.pageY
-            };
-
-        }, {passive: true});
-
-
-        renderer.domElement.addEventListener('touchend', function(e){
-            isDragging = false;
-
-        }, {passive: true});
-
-
-
-
-        
-
-        
-     
-        // renderer.domElement.addEventListener('touchmove', function(e){
-            // var deltaMove = {
-            //     x: e.offsetX-previousMousePosition.x,
-            //     y: e.offsetY-previousMousePosition.y
-            // };
-
-            // if(isDragging) {
-            //     var deltaRotationQuaternion = new THREE.Quaternion()
-            //         .setFromEuler(new THREE.Euler(
-            //             toRadians(deltaMove.y * 1),
-            //             toRadians(deltaMove.x * 1),
-            //             0,
-            //             'XYZ'
-            //         ));
-                
-            //     cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
-            // }
-            
-        //     previousMousePosition = {
-        //         x: e.offsetX,
-        //         y: e.offsetY
-        //     };
-        // }, {passive: false});
-
-
-       
-
-
-
-
-        // $(renderer.domElement).on('touchstart', function(e) {
-        //     e.preventDefault();
-
-        //     alert(1)
-        // }, {passive: true})
-        // .on('touchmove', function(e) {
-        //     e.preventDefault();
-
-        //   alert(1)
-
-        // }, {passive: true})
-
-        // $(document).on('touchend', function(e) { isDragging = false; }, {passive: true});
-
         window.requestAnimFrame = (function(){
             return  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame ||
                 function(callback) {
@@ -225,123 +61,271 @@
                 };
         })();
 
-        function render() {
-            renderer.render(scene, camera);
-            
-            requestAnimFrame(render);
-        } render();
+        var threeContainer, scene, camara, render, cube, material, geometry,
+            wireframeGeometry, wireframeMaterial, wireframe, currentTexture, currentColor, scaleX, scaleY, scaleZ;
+
+        var moveEvents          = ['mouseover', 'touchmove'];
+        var inputColor          = document.querySelector('input[type="color"]');
+        var inputFile           = document.querySelector('input[type="file"]');
+        var inputSizes          = document.querySelectorAll('.field__options input');
+        var fileError           = document.getElementById('error-file');
+        var isDragging          = false;
+        var previousPosition    = { x: 0, y: 0 };
+
+        function init(){
+            threeContainer    = document.getElementById('three-js');
+            scene             = new THREE.Scene();
+            camera            = new THREE.PerspectiveCamera(50, threeContainer.offsetWidth / threeContainer.offsetHeight, 0.1, 1000);
+            renderer          = new THREE.WebGLRenderer({
+                preserveDrawingBuffer: true
+            });
+
+            // Change background scene
+            scene.background    = new THREE.Color("#ffffff");
+
+            // Size to scene
+            renderer.setSize(threeContainer.offsetWidth, threeContainer.offsetHeight);
+
+            // Rendered object
+            threeContainer.appendChild(renderer.domElement)
+
+            // Cube
+            geometry  = new THREE.BoxBufferGeometry( 1, 1, 1 );
+            material  = new THREE.MeshBasicMaterial( { color: '#DFCEA9'} );
+            cube      = new THREE.Mesh( geometry, material );
+
+            camera.position.z   = 5;
+
+            // Wireframe
+            wireframeGeometry       = new THREE.EdgesGeometry(cube.geometry);
+            wireframeMaterial       = new THREE.LineBasicMaterial({ color: "#A58138", linewidth: 5 });
+            wireframe               = new THREE.LineSegments(wireframeGeometry, wireframeMaterial);
+            wireframe.renderOrder   = 1; 
+
+            // Create button for downloa canvas
+            var btnCanvas           = document.createElement("button");
+            btnCanvas.innerHTML     = "Descargar";
+
+            threeContainer.appendChild(btnCanvas);
+
+            cube.add(wireframe);
+            scene.add( cube );
+
+            inputColor.addEventListener('change', changeBoxColor)
+            inputFile.addEventListener('change', uploadBoxFile)
+            inputSizes.forEach(el => { el.addEventListener('change', changeBoxSize) });
+            moveEvents.forEach( event => renderer.domElement.addEventListener(event, checkMoveEvents) )
+
+        } init();
 
         function toRadians(angle) { return angle * (Math.PI / 180); }
 
-        // Event for change color
-        document.querySelector('input[type="color"]').addEventListener('change', function(e){
-            e.preventDefault(); 
-
-            colorSelected = this.value;
-
-            if(typeof currentTexture !== 'undefined'){
-                let materials = [
-                    new THREE.MeshBasicMaterial({
-                        color: colorSelected
-                    }),
-                    new THREE.MeshBasicMaterial({
-                        color: colorSelected
-                    }),
-                    new THREE.MeshBasicMaterial({
-                        color: colorSelected
-                    }),
-                    new THREE.MeshBasicMaterial({
-                        color: colorSelected
-                    }),
-                    new THREE.MeshBasicMaterial({
-                        map: currentTexture,
-                        transparent: true, 
-                        color: (colorSelected) ? colorSelected : '#DFCEA9'
-                    }),
-                    new THREE.MeshBasicMaterial({
-                        color: colorSelected
-                    })   
-                ]
-
-                cube.material = materials;
-            }else{
-                cube.material.color.set(this.value);
-            }
-        });
-
-        // Event for upload image
-        document.querySelector('input[type="file"]').addEventListener('change', function(e){
+        function changeBoxColor(e){
             e.preventDefault();
 
-            file                = this.files[0]; 
+            currentColor = e.target.value;
+
+            if(typeof currentTexture !== 'undefined'){
+
+                cube.geometry.clearGroups();
+                cube.geometry.addGroup(24, 6, 0);
+                cube.geometry.addGroup(0, Infinity, 1);
+
+                var materials = [
+                                    new THREE.MeshBasicMaterial( { 
+                                        map: currentTexture,
+                                        transparent: true, 
+                                        color: (currentColor) ? currentColor : '#DFCEA9'
+                                     }),
+                                     new THREE.MeshBasicMaterial({
+                                        color: currentColor
+                                    })
+                                ];
+
+                cube.material  = materials;    
+
+            } else{ cube.material.color.set(e.target.value); }
+
+            render();
+        }
+
+        function changeBoxSize(e){
+            e.preventDefault();
+
+            const maxScale = 300;
+
+            if(e.target.name == 'width'){  scaleX = e.target.value }
+            if(e.target.name == 'height'){ scaleY = e.target.value }
+            if(e.target.name == 'depth'){  scaleZ = e.target.value }
+
+            cube.scale.x = scaleX / maxScale;
+            cube.scale.y = scaleY / maxScale;
+            cube.scale.z = scaleZ / maxScale;
+        }
+
+        function uploadBoxFile(e){
+            e.preventDefault();
+
+            let file            = this.files[0]; 
             const reader        = new FileReader();
-            const imagesType    = ["image/jpeg", "image/png"];
+            const imagesType    = ["image/png"];
 
-            reader.addEventListener('load', (e) => {
+            reader.addEventListener('load', (el) => {
 
-                let image           = e.target.result;
-                let textureLoader   = new THREE.TextureLoader().load(image);
+                let image           = el.target.result;
+                let textureLoader   = new THREE.TextureLoader().load(image, function(img){
 
                     currentTexture  = textureLoader;
 
-                if(!imagesType.includes(file.type)){
-                    cube.material.color.set('#DFCEA9');
-                } else{
-                    let cubeMaterials   = [
-                        new THREE.MeshBasicMaterial({
-                            color: (colorSelected) ? colorSelected : '#DFCEA9'
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            color: (colorSelected) ? colorSelected : '#DFCEA9'
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            color: (colorSelected) ? colorSelected : '#DFCEA9'
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            color: (colorSelected) ? colorSelected : '#DFCEA9'
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            map: currentTexture,
-                            transparent: true, 
-                            color: (colorSelected) ? colorSelected : '#DFCEA9'
-                            // map: (textureLoader) ? textureLoader : '#DFCEA9'
-                        }),
-                        new THREE.MeshBasicMaterial({
-                            color: (colorSelected) ? colorSelected : '#DFCEA9'
-                        })       
-                    ];
+                    // Prepare to use two materials
+                    cube.geometry.clearGroups();
+                    cube.geometry.addGroup(24, 6, 0);
+                    cube.geometry.addGroup(0, Infinity, 1);
 
-                    cube.material =  cubeMaterials;
-                }
+                    var materials = [
+                                    new THREE.MeshBasicMaterial( { 
+                                        map: currentTexture,
+                                        transparent: true, 
+                                        color: (currentColor) ? currentColor : '#DFCEA9'
+                                     }),
+                                     new THREE.MeshBasicMaterial({
+                                        color: (currentColor) ? currentColor : '#DFCEA9'
+                                    })
+                                ];
+
+                    cube.material                   = materials;    
+                    cube.material.needsUpdate       = true;
+                    cube.geometry.uvsNeedUpdate     = true;
+                    cube.geometry.buffersNeedUpdate = true;
+                });
             });
 
             if (file) { reader.readAsDataURL(file) }
 
             if(!imagesType.includes(file.type)){
                 fileError.style.display     = 'block';
-                fileError.innerHTML         = "¡Error! Solo se permiten formatos: [ .jpg .png ]";
+                fileError.innerHTML         = "¡Error! Solo se permite formato PNG";
                 fileError.style.color       = 'red';
 
                 return false;
             }
-        });
+        }
 
-        // Event for change size
-        document.querySelectorAll('.field__options input').forEach(el => {
-                el.addEventListener('change', function(e){
-                    e.preventDefault();
+        function checkMoveEvents(e){
+            if(e.type == 'mouseover'){
 
-                    const maxScale = 300;
+                $(renderer.domElement).on('mousedown', function(e) {
+                    isDragging = true;
+                })
+                .on('mousemove', function(e) {
+                    var deltaMove = {
+                        x: e.offsetX-previousPosition.x,
+                        y: e.offsetY-previousPosition.y
+                    };
 
-                    if(e.target.name == 'width'){  x = e.target.value }
-                    if(e.target.name == 'height'){ y = e.target.value }
-                    if(e.target.name == 'depth'){  z = e.target.value }
+                    if(isDragging) {
+                        var deltaRotationQuaternion = new THREE.Quaternion()
+                            .setFromEuler(new THREE.Euler(
+                                toRadians(deltaMove.y * 1),
+                                toRadians(deltaMove.x * 1),
+                                0,
+                                'XYZ'
+                            ));
+                        
+                        cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
+                    }
+                    
+                    previousPosition = {
+                        x: e.offsetX,
+                        y: e.offsetY
+                    };
 
-                    cube.scale.x = x / maxScale;
-                    cube.scale.y = y / maxScale;
-                    cube.scale.z = z / maxScale;
-                });
-        });
+                    $(this).css('cursor','grab');
+                })
+
+                $(document).on('mouseup', function(e) { isDragging = false; });
+
+                renderer.domElement.addEventListener('touchstart', function(e){
+                    isDragging = true;
+
+                }, {passive: true});
+
+                // renderer.domElement.addEventListener('mousedown', function(e){
+                //     isDragging = false;
+
+                // }, {passive: true});
+
+                // renderer.domElement.addEventListener('mousemove', function(e){
+                //     var deltaMove = {
+                //         x: e.offsetX - previousPosition.x,
+                //         y: e.offsetY - previousPosition.y
+                //     };
+
+                //     if(isDragging) {
+                //         var deltaRotationQuaternion = new THREE.Quaternion()
+                //             .setFromEuler(new THREE.Euler(
+                //                 toRadians(deltaMove.y * 1),
+                //                 toRadians(deltaMove.x * 1),
+                //                 0,
+                //                 'XYZ'
+                //             ));
+
+                //         cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
+                //     }
+                    
+                //     previousPosition = { x: e.offsetX, y: e.offsetY };
+
+                //     this.style.cursor = 'pointer';
+
+                // }, {passive: true});
+
+                // document.addEventListener('mouseup', function(e){
+                //     isDragging = true;
+
+                // }, {passive: true});
+            } else{
+
+                renderer.domElement.addEventListener('touchstart', function(e){
+                    isDragging = true;
+
+                }, {passive: true});
+
+                renderer.domElement.addEventListener('touchmove', function(e){
+
+                    var touch = e.touches[0] || e.changedTouches[0];
+
+                    var deltaMove = {
+                        x: touch.pageX - previousPosition.x,
+                        y: touch.pageY - previousPosition.y
+                    };
+
+                    if(isDragging) {
+                        var deltaRotationQuaternion = new THREE.Quaternion()
+                            .setFromEuler(new THREE.Euler(
+                                toRadians(deltaMove.y * 1),
+                                toRadians(deltaMove.x * 1),
+                                0,
+                                'XYZ'
+                            ));
+                        
+                        cube.quaternion.multiplyQuaternions(deltaRotationQuaternion, cube.quaternion);
+                    }
+
+                    previousPosition = { x: touch.pageX, y: touch.pageY };
+                }, {passive: true});
+
+                renderer.domElement.addEventListener('touchend', function(e){
+                    isDragging = false;
+
+                }, {passive: true});
+            }
+        }
+
+        function render(){
+            renderer.render(scene, camera);
+            
+            requestAnimFrame(render);
+        } render();
 
         // Event to reset page
         document.getElementById('reset').addEventListener('click', function(e){
@@ -356,17 +340,36 @@
 
             render();
 
-            let screenshot  = renderer.domElement.toDataURL();
-            let link        = document.createElement('a');
+            let link            = document.createElement('a');
+            const canvas        = document.createElement("canvas");
+            const context       = canvas.getContext("2d");
 
-                link.href       = screenshot;
-                link.download   = "preview-my-box.png";
+                canvas.width    = renderer.domElement.width;
+                canvas.height   = renderer.domElement.height;
+                canvas.setAttribute("style","position:absolute");
+
+                context.drawImage(renderer.domElement, 0, 0);
+                context.fillStyle       = "#000000";
+                context.textAlign       = "right";
+                context.font            = "bold 12px serif";
+
+                (scaleX) ? scaleX = scaleX : scaleX = 0;
+                (scaleY) ? scaleY = scaleY : scaleY = 0;
+                (scaleZ) ? scaleZ = scaleZ : scaleZ = 0;
+
+                context.fillText("Diseño de empaque, medidas (largo, alto, ancho): " + scaleX + 'mm ' + scaleY + 'mm ' + scaleZ + 'mm', canvas.width - 50, canvas.height - 60);
+                context.fillText("Elaborado en CARTONVEN", canvas.width - 160, canvas.height - 40);
+
+                link.href       = canvas.toDataURL();
+                link.download   = "preview-mi-caja.png";
+
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+
+                location.reload();
         });
 
     </script>
-
 </body>
 </html>
